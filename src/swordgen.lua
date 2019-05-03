@@ -47,6 +47,10 @@ local HANDLES = {
     {
         name = "2",
         quad = create_component_quad(COMPONENT_SPRITE_WIDTH, 0)
+    },
+    {
+        name = "3",
+        quad = create_component_quad(COMPONENT_SPRITE_WIDTH * 2, 0)
     }
 }
 
@@ -58,6 +62,10 @@ local HILTS = {
     {
         name = "2",
         quad = create_component_quad(COMPONENT_SPRITE_WIDTH, 0)
+    },
+    {
+        name = "3",
+        quad = create_component_quad(COMPONENT_SPRITE_WIDTH * 2, 0)
     }
 }
 
@@ -101,7 +109,7 @@ end
 function swordgen:draw()
     if _debug and _current_sword then
         local counter = 0
-        local sx, sy = 10, 10
+        local sx, sy = 16, 16
 
         for key, component in pairs(_current_sword) do
             love.graphics.setColor(1, 1, 1)
