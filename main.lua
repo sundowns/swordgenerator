@@ -4,31 +4,25 @@ local swordgen = nil
 local sword = nil
 
 function love.load()
+    love.graphics.setDefaultFilter("nearest", "nearest", 0)
     _util = require("lib.util")
     swordgen = require("src.swordgen")
+    swordgen.toggle_debug()
+    swordgen:generate()
+
+    love.graphics.setFont(love.graphics.newFont(32))
 end
 
 function love.update(dt)
 end
 
 function love.draw()
-    if sword then
-        local counter = 0
-        love.graphics.setColor(1, 0, 0)
-        for k, component in pairs(sword) do
-            love.graphics.print(
-                k .. ": " .. component.name,
-                love.graphics.getWidth() / 2,
-                love.graphics.getHeight() / 3 + counter * 20
-            )
-            counter = counter + 1
-        end
-    end
+    swordgen:draw()
 end
 
 function love.keypressed(key)
     if key == "space" then
-        sword = swordgen:generate()
+        swordgen:generate()
     elseif key == "escape" then
         love.event.quit()
     end
