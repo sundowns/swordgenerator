@@ -24,10 +24,6 @@ local BLADES_SPRITESHEET = love.graphics.newImage("resource/blades.png")
 local HILTS_SPRITESHEET = love.graphics.newImage("resource/hilts.png")
 local HANDLES_SPRITESHEET = love.graphics.newImage("resource/handles.png")
 
--- TODO: figure out how to anchor. maybe supporting data file/table for each individual sprite? (could do all the same for now)
--- local BLADE_SPRITE_ANCHOR = coordinates(SPRITE_WIDTH / 2, SPRITE_HEIGHT) -- bottom centre
--- local HILT_SPRITE_ANCHOR = coordinates(T)
-
 function create_component_quad(x, y)
     return love.graphics.newQuad(
         x,
@@ -101,7 +97,12 @@ function swordgen:generate()
         handle = choose(unpack(HANDLES))
     }
 
-    -- TODO: Combine the component sprites into a single point using anchor points
+    -- TODO: Anchor joining -
+    -- * Specify anchors for each component (blade x1, hilt x2, handle x1).
+    -- * in order of blade -> hilt1, hilt2 -> handle, attach each anchor pair on a canvas (calculate the offset & translate)
+
+    -- local BLADE_SPRITE_ANCHOR = coordinates(SPRITE_WIDTH / 2, SPRITE_HEIGHT) -- bottom centre
+    -- local HILT_SPRITE_ANCHOR = coordinates(T)
 
     _current_sword = new_sword
 end
