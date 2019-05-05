@@ -17,114 +17,64 @@ end
 -- [CONSTANTS]
 
 -- each type of sprite the same dimensions (for now). alternatively they have their own pivot points
-local COMPONENT_SPRITE_WIDTH = 16
-local COMPONENT_SPRITE_HEIGHT = 16
+local HILT_SPRITE_WIDTH = 16
+local HILT_SPRITE_HEIGHT = 16
+
+local HANDLE_SPRITE_HEIGHT = 16
+local HANDLE_SPRITE_WIDTH = 16
+
+local BLADE_SPRITE_WIDTH = 16
+local BLADE_SPRITE_HEIGHT = 24
 
 local BLADES_SPRITESHEET = love.graphics.newImage("resource/blades.png")
 local HILTS_SPRITESHEET = love.graphics.newImage("resource/hilts.png")
 local HANDLES_SPRITESHEET = love.graphics.newImage("resource/handles.png")
 
-function create_component_quad(x, y)
-    return love.graphics.newQuad(
-        x,
-        y,
-        COMPONENT_SPRITE_WIDTH,
-        COMPONENT_SPRITE_HEIGHT,
-        BLADES_SPRITESHEET:getWidth(),
-        BLADES_SPRITESHEET:getHeight()
+local HILTS = nil
+local HANDLES = nil
+local BLADES = nil
+
+-- [LOGIC]
+
+function create_blade_quad(x, y)
+    return create_component_quad(
+        x * BLADE_SPRITE_WIDTH,
+        y * BLADE_SPRITE_HEIGHT,
+        BLADE_SPRITE_WIDTH,
+        BLADE_SPRITE_HEIGHT,
+        BLADES_SPRITESHEET
     )
 end
 
-local HANDLES = {
-    {
-        name = "1",
-        quad = create_component_quad(0, 0),
-        fixtures = {
-            hilt = coordinates(7, 9)
-        }
-    },
-    {
-        name = "2",
-        quad = create_component_quad(COMPONENT_SPRITE_WIDTH, 0),
-        fixtures = {
-            hilt = coordinates(7, 9)
-        }
-    },
-    {
-        name = "3",
-        quad = create_component_quad(COMPONENT_SPRITE_WIDTH * 2, 0),
-        fixtures = {
-            hilt = coordinates(7, 9)
-        }
-    },
-    {
-        name = "4",
-        quad = create_component_quad(COMPONENT_SPRITE_WIDTH * 3, 0),
-        fixtures = {
-            hilt = coordinates(7, 6)
-        }
-    }
-}
+function create_hilt_quad(x, y)
+    return create_component_quad(
+        x * HILT_SPRITE_WIDTH,
+        y * HILT_SPRITE_HEIGHT,
+        HILT_SPRITE_WIDTH,
+        HILT_SPRITE_HEIGHT,
+        HILTS_SPRITESHEET
+    )
+end
 
-local HILTS = {
-    {
-        name = "1",
-        quad = create_component_quad(0, 0),
-        fixtures = {
-            handle = coordinates(7, 14),
-            blade = coordinates(7, 9)
-        }
-    },
-    {
-        name = "2",
-        quad = create_component_quad(COMPONENT_SPRITE_WIDTH, 0),
-        fixtures = {
-            handle = coordinates(7, 13),
-            blade = coordinates(7, 10)
-        }
-    },
-    {
-        name = "3",
-        quad = create_component_quad(COMPONENT_SPRITE_WIDTH * 2, 0),
-        fixtures = {
-            handle = coordinates(7, 13),
-            blade = coordinates(7, 10)
-        }
-    }
-}
+function create_handle_quad(x, y)
+    return create_component_quad(
+        x * HANDLE_SPRITE_WIDTH,
+        y * HANDLE_SPRITE_HEIGHT,
+        HANDLE_SPRITE_WIDTH,
+        HANDLE_SPRITE_HEIGHT,
+        HANDLES_SPRITESHEET
+    )
+end
 
-local BLADES = {
-    {
-        name = "1",
-        quad = create_component_quad(0, 0),
-        fixtures = {
-            hilt = coordinates(8, 15)
-        }
-    },
-    {
-        name = "2",
-        quad = create_component_quad(COMPONENT_SPRITE_WIDTH, 0),
-        fixtures = {
-            hilt = coordinates(8, 15)
-        }
-    },
-    {
-        name = "3",
-        quad = create_component_quad(COMPONENT_SPRITE_WIDTH * 2, 0),
-        fixtures = {
-            hilt = coordinates(8, 15)
-        }
-    },
-    {
-        name = "4",
-        quad = create_component_quad(COMPONENT_SPRITE_WIDTH * 3, 0),
-        fixtures = {
-            hilt = coordinates(8, 15)
-        }
-    }
-}
+function create_component_quad(x, y, width, height, sprite_sheet)
+    return love.graphics.newQuad(x, y, width, height, sprite_sheet:getWidth(), sprite_sheet:getHeight())
+end
 
--- [LOGIC]
+function load_components()
+    HILTS = require("resource/hilts")
+    HANDLES = require("resource/handles")
+    BLADES = require("resource/blades")
+end
 
 function swordgen:toggle_debug()
     _debug = not _debug
@@ -142,16 +92,11 @@ function swordgen:create_new()
 end
 
 function swordgen:combine(sword)
-    local canvas = love.graphics.newCanvas(COMPONENT_SPRITE_WIDTH, COMPONENT_SPRITE_HEIGHT * 3) -- 16x48 atm
+    local canvas = love.graphics.newCanvas(16, 48)
     love.graphics.setCanvas(canvas)
     love.graphics.setColor(1, 1, 1)
     -- draw handle at the bottom
-    love.graphics.draw(
-        HANDLES_SPRITESHEET,
-        sword.components.handle.quad,
-        0,
-        canvas:getHeight() - COMPONENT_SPRITE_HEIGHT
-    )
+    love.graphics.draw(HANDLES_SPRITESHEET, sword.components.handle.quad, 0, canvas:getHeight() - HANDLE_SPRITE_HEIGHT)
 
     -- Draw hilt (bottom pivot) above handle (top pivot)
     local hilt_offset =
@@ -163,7 +108,7 @@ function swordgen:combine(sword)
         HILTS_SPRITESHEET,
         sword.components.hilt.quad,
         hilt_offset.x,
-        canvas:getHeight() - COMPONENT_SPRITE_HEIGHT + hilt_offset.y
+        canvas:getHeight() - HANDLE_SPRITE_HEIGHT + hilt_offset.y
     )
 
     -- Draw blade (bottom pivot) above hilt (top pivot)
@@ -172,12 +117,11 @@ function swordgen:combine(sword)
         sword.components.hilt.fixtures.blade.x - sword.components.blade.fixtures.hilt.x,
         sword.components.hilt.fixtures.blade.y - sword.components.blade.fixtures.hilt.y
     )
-
     love.graphics.draw(
         BLADES_SPRITESHEET,
-        sword.components.hilt.quad,
+        sword.components.blade.quad,
         blade_offset.x,
-        canvas:getHeight() - COMPONENT_SPRITE_HEIGHT + hilt_offset.y + blade_offset.y
+        canvas:getHeight() - HANDLE_SPRITE_HEIGHT + hilt_offset.y + blade_offset.y
     )
 
     love.graphics.setCanvas()
@@ -190,12 +134,11 @@ function swordgen:generate()
     local new_sword = self:create_new()
     new_sword = self:combine(new_sword)
 
-    -- TODO: Anchor joining -
-    -- * Specify anchors for each component (blade x1, hilt x2, handle x1).
-    -- * in order of blade -> hilt1, hilt2 -> handle, attach each anchor pair on a canvas (calculate the offset & translate)
-
-    -- local BLADE_SPRITE_ANCHOR = coordinates(SPRITE_WIDTH / 2, SPRITE_HEIGHT) -- bottom centre
-    -- local HILT_SPRITE_ANCHOR = coordinates(T)
+    -- TODO: test for contiguous space to drop a gem???
+    -- TODO: add a special effect of some kinda?
+    -- TODO: different stats?
+    -- TODO: name generator?
+    -- TODO: Place one in the world of a game and wield it!!
 
     _current_sword = new_sword
 end
@@ -206,17 +149,19 @@ function swordgen:draw()
         love.graphics.setColor(1, 1, 1)
         love.graphics.draw(
             _current_sword.canvas,
-            love.graphics.getWidth() / 2 - _current_sword.canvas:getWidth() / 2 - COMPONENT_SPRITE_WIDTH / 2 * sx,
-            200 - COMPONENT_SPRITE_HEIGHT / 2 * sy,
+            love.graphics.getWidth() / 2 - _current_sword.canvas:getWidth() / 2 * sx,
+            love.graphics.getHeight() / 2 - _current_sword.canvas:getHeight() / 2 * sy,
             0,
             sx,
             sy
         )
+
+        love.graphics.setColor(0.5, 0.5, 0.5)
         -- draw bounding rectangle
         love.graphics.rectangle(
             "line",
-            love.graphics.getWidth() / 2 - _current_sword.canvas:getWidth() / 2 - COMPONENT_SPRITE_WIDTH / 2 * sx,
-            200 - COMPONENT_SPRITE_HEIGHT / 2 * sy,
+            love.graphics.getWidth() / 2 - _current_sword.canvas:getWidth() / 2 * sx,
+            love.graphics.getHeight() / 2 - _current_sword.canvas:getHeight() / 2 * sy,
             _current_sword.canvas:getWidth() * sx,
             _current_sword.canvas:getHeight() * sy
         )
@@ -236,5 +181,7 @@ end
 
 function swordgen:update(dt)
 end
+
+load_components()
 
 return swordgen

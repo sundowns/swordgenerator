@@ -10,7 +10,7 @@ function love.load()
     swordgen.toggle_debug()
     swordgen:generate()
 
-    love.graphics.setBackgroundColor(0.25, 1, 0.5)
+    love.graphics.setBackgroundColor(0.15, 0.2, 0.4)
     love.graphics.setFont(love.graphics.newFont(32))
 end
 
