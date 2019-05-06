@@ -134,7 +134,8 @@ function swordgen:generate()
     local new_sword = self:create_new()
     new_sword = self:combine(new_sword)
 
-    -- TODO: test for contiguous space to drop a gem???
+    -- TODO: Gem fixtures to randomly insert? (1x1, 2x2?)
+    -- TODO: Use a pixel shader to allow palette swapping components before drawing on canvas!!!!!!!! (bronze, steel, black, etc??)
     -- TODO: add a special effect of some kinda?
     -- TODO: different stats?
     -- TODO: name generator?
